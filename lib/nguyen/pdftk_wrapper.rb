@@ -18,7 +18,12 @@ module Nguyen
     def fill_form(template, destination, form_data_format)
       tmp = Tempfile.new('pdf_forms-fdf')
       tmp.close
-      form_data_format.save_to tmp.path
+      if (form_data_format.instance_of? String
+        # just save the string to file
+        File.write(tmp, form_data_format)
+      else
+        form_data_format.save_to tmp.path
+      end
       command = pdftk_command %Q("#{template}"), 'fill_form', %Q("#{tmp.path}"), 'output', destination, add_options(tmp.path)
       output = %x{#{command}}
       unless File.readable?(destination) && File.size(destination) > 0
